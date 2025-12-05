@@ -8,12 +8,15 @@ const hasMailCredentials = process.env.GMAIL_USER && process.env.GMAIL_APP_PASSW
 // Configure nodemailer
 const transporter = hasMailCredentials
   ? nodemailer.createTransport({
-      service: 'gmail',
-      auth: {
-        user: process.env.GMAIL_USER,
-        pass: process.env.GMAIL_APP_PASSWORD,
-      },
-    })
+    service: 'gmail',
+    auth: {
+      user: process.env.GMAIL_USER,
+      pass: process.env.GMAIL_APP_PASSWORD,
+    },
+    connectionTimeout: 10000, // 10 seconds
+    greetingTimeout: 10000,   // 10 seconds
+    socketTimeout: 10000,     // 10 seconds
+  })
   : null;
 
 // POST - Create new message and send email
@@ -46,7 +49,9 @@ router.post('/', async (req, res) => {
     };
 
     if (transporter) {
+      console.log('Attempting to send email...');
       await transporter.sendMail(mailOptions);
+      console.log('Email sent successfully');
     } else {
       console.warn('GMAIL credentials missing - skipping email notification');
     }
