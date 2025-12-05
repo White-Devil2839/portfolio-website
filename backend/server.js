@@ -7,7 +7,18 @@ const app = express();
 const PORT = process.env.PORT || 5000;
 const clientOrigins = process.env.CLIENT_URL
   ? process.env.CLIENT_URL.split(',').map(origin => origin.trim())
-  : ['http://localhost:3000'];
+  : [];
+
+// Always allow localhost for development
+const allowedOrigins = [
+  ...clientOrigins,
+  'http://localhost:3000',
+  'http://localhost:5000',
+  'http://localhost:5173',
+  'http://127.0.0.1:3000'
+];
+
+console.log('Allowed origins:', allowedOrigins);
 
 // Connect to MongoDB
 connectDB();
@@ -15,10 +26,16 @@ connectDB();
 // Middleware
 app.use(cors({
   origin: (origin, callback) => {
-    if (!origin || clientOrigins.includes(origin)) {
-      return callback(null, origin);
+    // Allow requests with no origin (like mobile apps or curl requests)
+    if (!origin) return callback(null, true);
+
+    // Allow any localhost origin or specific allowed origins
+    if (allowedOrigins.includes(origin) || origin.startsWith('http://localhost') || origin.startsWith('http://127.0.0.1')) {
+      return callback(null, true);
+    } else {
+      console.log('Blocked origin:', origin);
+      return callback(new Error('Not allowed by CORS'));
     }
-    return callback(new Error(`CORS blocked for origin ${origin}`));
   },
   credentials: true,
 }));
