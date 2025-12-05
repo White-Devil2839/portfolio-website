@@ -4,24 +4,23 @@ import { motion } from 'framer-motion';
 const About = () => {
   const experiences = [
     {
-      year: "2023 - Present",
-      title: "Full Stack Developer",
-      company: "Tech Company",
-      description: "Developing modern web applications using MERN stack and cloud technologies."
+      year: "2025 - Present",
+      title: "Full Stack Developer (Independent Projects)",
+      company: "Self-Driven",
+      description: "Building full-stack applications using React, Node.js, Express.js and MongoDB, with a focus on AI-powered features and clean UI/UX."
     },
     {
-      year: "2022 - 2023",
-      title: "Web Development Intern",
-      company: "Startup Inc",
-      description: "Gained hands-on experience in full-stack development and agile methodologies."
-    },
-    {
-      year: "2019 - 2023",
+      year: "2024 - Present",
       title: "Computer Science Student",
-      company: "University of Technology",
-      description: "Focused on software engineering, algorithms, and AI/ML fundamentals."
+      company: "Newton School of Technology",
+      description: "Studied software engineering, algorithms, and AI/ML fundamentals while building practical projects."
+    },
+    {
+      year: "2025",
+      title: "Open Source Contributor, Mongoose"
     }
   ];
+
 
   return (
     <motion.div
@@ -32,24 +31,33 @@ const About = () => {
     >
       <div className="container">
         <h2 className="section-title">About Me</h2>
-        
+
         <div className="about-content">
           <div className="about-text">
             <p>
-              I'm a passionate full-stack developer with a strong foundation in computer science 
-              and a keen interest in artificial intelligence. My journey in technology started 
-              during my university years, and since then, I've been constantly learning and 
-              adapting to new technologies.
+              I'm a full-stack developer who loves turning ideas into polished, usable products.
+              With a strong foundation in computer science and hands-on experience across the MERN
+              stack, I enjoy building systems that feel fast, intuitive, and thoughtfully engineered.
+            </p>
+
+            <p>
+              I’m especially interested in AI-driven experiences, developer tools, and clean
+              design systems. Recently, I contributed a merged PR to the Mongoose open-source
+              library—an experience that strengthened my understanding of production-grade
+              code and collaborative engineering.
+            </p>
+
+            <p>
+              Outside of coding, I enjoy exploring emerging AI technologies, working on
+              side projects, and contributing to the developer community. I’m constantly
+              learning, iterating, and pushing myself to build better experiences.
             </p>
             <p>
-              What sets me apart is my entrepreneurial mindset combined with technical expertise. 
-              I believe in creating solutions that not only work well but also provide real value 
-              to users. My strengths include problem-solving, leadership, and effective communication.
+              My current focus areas: full-stack engineering, generative AI workflows,
+              scalable backend architectures, and developer experience tooling.
             </p>
-            <p>
-              When I'm not coding, you can find me exploring new AI technologies, contributing to 
-              open-source projects, or sharing knowledge with the developer community.
-            </p>
+
+
           </div>
 
           <div className="timeline">

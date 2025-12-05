@@ -47,7 +47,7 @@ const Home = () => {
               animate={{ y: 0, opacity: 1 }}
               transition={{ duration: 0.8 }}
             >
-              
+
               <span className="gradient-text"> Divyansh Choudhary</span>
             </motion.h1>
             <motion.p
@@ -55,9 +55,8 @@ const Home = () => {
               animate={{ y: 0, opacity: 1 }}
               transition={{ duration: 0.8, delay: 0.2 }}
             >
-              I blend product thinking, delightful UI and scalable systems to ship
-              features that users actually talk about. Currently focused on AI-first
-              tooling, design systems, and meaningful onboarding flows.
+              I blend product thinking, clean UI, and solid engineering fundamentals to build polished, reliable user experiences. Currently exploring AI-powered tooling, modern web architectures, and thoughtful design patterns.
+
             </motion.p>
             <motion.ul
               className="hero-badges"
@@ -90,16 +89,14 @@ const Home = () => {
               transition={{ duration: 0.8, delay: 0.5 }}
             >
               <div className="stat-card">
-                <h4>20+</h4>
-                <span>Products shipped end-to-end</span>
-              </div>
-              <div className="stat-card">
-                <h4>4 yrs</h4>
-                <span>Experience crafting experiences</span>
-              </div>
-              <div className="stat-card">
-                <h4>120%</h4>
-                <span>Average KPI lift post-launch</span>
+                <h4>15+</h4>
+                <span>Projects across web development, AI, and full-stack systems</span>
+
+                <h4>1–2 yrs</h4>
+                <span>Hands-on experience building real products & prototypes</span>
+
+                <h4>Consistent</h4>
+                <span>Improvements in UX, performance, and maintainability across projects</span>
               </div>
             </motion.div>
           </div>
@@ -120,8 +117,9 @@ const Home = () => {
               <div className="stack-pills">
                 <span>React</span>
                 <span>Node.js</span>
-                <span>GraphQL</span>
                 <span>MongoDB</span>
+                <span>Express.js</span>
+                <span>React Native</span>
               </div>
             </div>
             <div className="orbit-card">
@@ -137,7 +135,7 @@ const Home = () => {
         </div>
       </section>
 
-      <section className="section trusted-section">
+      {/* <section className="section trusted-section">
         <div className="container">
           <p className="trusted-text">Trusted by teams at</p>
           <div className="logo-marquee">
@@ -153,7 +151,7 @@ const Home = () => {
             </div>
           </div>
         </div>
-      </section>
+      </section> */}
 
       {/* Featured Section */}
       <section className="section">
@@ -203,20 +201,21 @@ const Home = () => {
             transition={{ duration: 0.6 }}
           >
             <p className="eyebrow">In the spotlight</p>
-            <h2>Leading teams from zero ➜ one and beyond</h2>
+            <h2>Turning ideas into polished, user-friendly products</h2>
             <p>
-              I love being embedded with design, research, and GTM to spot opportunities, validate them quickly,
-              and craft lovable user experiences. From AI copilots to complex data viz, I bring a calm,
-              systems-minded approach to every project.
+              I enjoy diving into problems, validating assumptions quickly, and crafting
+              experiences that feel intuitive and delightful. From AI features to interactive dashboards,
+              I bring a thoughtful, systems-minded approach to every project.
             </p>
             <ul className="check-list">
-              <li>Build with empathy and speed</li>
-              <li>Translate ambiguity into action</li>
-              <li>Communicate clearly with execs & ICs</li>
+              <li>Build with clarity and intention</li>
+              <li>Prototype fast, iterate faster</li>
+              <li>Work seamlessly with designers & engineers</li>
             </ul>
+
           </motion.div>
 
-          <motion.div
+          {/* <motion.div
             className="split-card floating slow"
             initial={{ x: 40, opacity: 0 }}
             whileInView={{ x: 0, opacity: 1 }}
@@ -237,7 +236,7 @@ const Home = () => {
               <p>Built analytics suite adopted by CS + GTM org in under 6 weeks.</p>
             </div>
             <div className="glow-accent" />
-          </motion.div>
+          </motion.div> */}
         </div>
       </section>
 
@@ -280,8 +279,9 @@ const Home = () => {
               <p className="eyebrow">Let’s talk impact</p>
               <h2>Ready to ship something users obsess over?</h2>
               <p>
-                I can plug in as a rapid product squad or augment your existing team to tackle gnarly problems,
-                design systems, and polished web apps.
+                I love collaborating with teams to explore ideas, build fast,
+                and ship user-focused experiences.
+
               </p>
             </div>
             <div className="cta-banner-actions">
@@ -291,7 +291,7 @@ const Home = () => {
                 <span>Growth experiments</span>
               </div>
               <Link to="/contact" className="cta-button">
-                Schedule a jam session
+                Let’s Connect
               </Link>
             </div>
           </motion.div>

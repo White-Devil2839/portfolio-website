@@ -76,7 +76,7 @@ const Resume = () => {
           </div>
 
           {/* Experience */}
-          <div className="resume-section">
+          {/* <div className="resume-section">
             <h3>Experience</h3>
             {resumeData.experience?.map((exp, idx) => (
               <div key={exp._id || idx} className="experience-item">
@@ -91,10 +91,10 @@ const Resume = () => {
                 </ul>
               </div>
             ))}
-          </div>
+          </div> */}
 
           {/* Education */}
-          <div className="resume-section">
+          {/* <div className="resume-section">
             <h3>Education</h3>
             {resumeData.education?.map((edu, idx) => (
               <div key={edu._id || idx} className="education-item">
@@ -115,10 +115,10 @@ const Resume = () => {
                 )}
               </div>
             ))}
-          </div>
+          </div> */}
 
           {/* Skills */}
-          <div className="resume-section">
+          {/* <div className="resume-section">
             <h3>Skills</h3>
             <div className="skills-container">
               <div className="technical-skills">
@@ -138,7 +138,7 @@ const Resume = () => {
                 </div>
               </div>
             </div>
-          </div>
+          </div> */}
         </div>
       </div>
     </motion.div>

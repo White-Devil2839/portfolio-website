@@ -69,8 +69,8 @@ const Contact = () => {
               Feel free to reach out!
             </p>
             <div className="contact-details">
-              <p><strong>Email:</strong> your.email@example.com</p>
-              <p><strong>Location:</strong> City, Country</p>
+              <p><strong>Email:</strong> divyanshchoudhary2839@gmail.com</p>
+              <p><strong>Location:</strong> Pune, India</p>
               <p><strong>Availability:</strong> Open to new opportunities</p>
             </div>
           </div>
