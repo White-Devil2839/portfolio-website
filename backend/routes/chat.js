@@ -1,9 +1,27 @@
 const express = require('express');
 const router = express.Router();
-const { GoogleGenerativeAI } = require('@google/generative-ai');
+const fetch = require('node-fetch');
+
 const Project = require('../models/Project');
 const Skill = require('../models/Skill');
 const Resume = require('../models/Resume');
+
+/* --------------------------------------------------
+   GLOBAL GEMINI COOLDOWN LOCK
+-------------------------------------------------- */
+let geminiCooldownUntil = 0;
+
+/* --------------------------------------------------
+   ANSWER VARIATION MEMORY (last 3 replies)
+-------------------------------------------------- */
+let recentReplies = [];
+
+const rememberReply = (text) => {
+  recentReplies.push(text);
+  if (recentReplies.length > 3) {
+    recentReplies.shift();
+  }
+};
 
 router.post('/', async (req, res) => {
   try {
@@ -11,67 +29,166 @@ router.post('/', async (req, res) => {
     const apiKey = process.env.GEMINI_API_KEY;
 
     if (!apiKey) {
-      return res.status(500).json({ 
-        message: 'Gemini API Key is missing. Please add GEMINI_API_KEY to backend/.env' 
+      return res.status(500).json({
+        message: 'Gemini API Key is missing'
       });
     }
 
-    // Fetch context data
+    if (!message || !message.trim()) {
+      return res.json({ reply: 'Please enter a valid question.' });
+    }
+
+    const userMessage = message.toLowerCase().trim();
+
+    /* --------------------------------------------------
+       1️⃣ LOCAL GREETINGS (NEVER HIT GEMINI)
+    -------------------------------------------------- */
+    if (['hi', 'hello', 'hey', 'hii'].includes(userMessage)) {
+      return res.json({
+        reply:
+          "Hello! I’m Divyansh’s AI assistant. You can ask me about his projects, skills, education, or experience as presented on this website."
+      });
+    }
+
+    /* --------------------------------------------------
+       2️⃣ LOCAL HR-SAFE QUESTIONS (NO AI)
+    -------------------------------------------------- */
+    if (userMessage.includes('salary') || userMessage.includes('pay')) {
+      return res.json({
+        reply:
+          "Compensation for an early-career full stack developer typically depends on location, company size, and responsibilities. Candidates with strong fundamentals and practical project experience are generally compensated competitively."
+      });
+    }
+
+    /* --------------------------------------------------
+       3️⃣ HARD COOLDOWN LOCK (AI ONLY)
+    -------------------------------------------------- */
+    const now = Date.now();
+    if (now < geminiCooldownUntil) {
+      const waitSeconds = Math.ceil((geminiCooldownUntil - now) / 1000);
+      return res.json({
+        reply: `I’m currently handling a high number of requests. Please wait ${waitSeconds} seconds and try again.`,
+        retryAfter: waitSeconds
+      });
+    }
+
+    /* --------------------------------------------------
+       FETCH DATABASE CONTEXT
+    -------------------------------------------------- */
     const [projects, skills, resume] = await Promise.all([
       Project.find({}),
       Skill.find({}),
       Resume.findOne({})
     ]);
 
-    // Construct system prompt
+    /* --------------------------------------------------
+       HR-STYLE + VARIATION-AWARE PROMPT
+    -------------------------------------------------- */
     const context = `
-      You are an AI assistant for Divyansh Choudhary's portfolio website.
-      Your role is to answer questions from HR, recruiters, and visitors about Divyansh's background, skills, and projects.
-      
-      Here is the data you have access to:
-      
-      RESUME:
-      ${JSON.stringify(resume, null, 2)}
-      
-      PROJECTS:
-      ${JSON.stringify(projects, null, 2)}
-      
-      SKILLS:
-      ${JSON.stringify(skills, null, 2)}
-      
-      INSTRUCTIONS:
-      - Be professional, polite, and concise.
-      - Answer based ONLY on the provided data. If you don't know, say so.
-      - Highlight relevant projects or skills when asked.
-      - Keep responses short (under 150 words) unless asked for details.
-      - If asked about contact info, refer to the contact section or resume.
-    `;
+You are an AI assistant representing Divyansh Choudhary to HR professionals and recruiters.
 
-    const genAI = new GoogleGenerativeAI(apiKey);
-    const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
+TONE & STYLE:
+- Professional, calm, and confident
+- HR-friendly language
+- Short paragraphs only
+- No hype or exaggeration
+- Focus on skills, learning ability, and practical experience
 
-    const chat = model.startChat({
-      history: [
-        {
-          role: "user",
-          parts: [{ text: context }],
-        },
-        {
-          role: "model",
-          parts: [{ text: "Understood. I am ready to answer questions about Divyansh's portfolio." }],
-        },
-      ],
-    });
+FORMAT RULES (VERY IMPORTANT):
+- Do NOT use markdown
+- Do NOT use bullet points
+- Do NOT use numbered lists
+- Do NOT use asterisks (*)
+- Do NOT use bold or italic text
+- Write in natural paragraphs only
 
-    const result = await chat.sendMessage(message);
-    const response = await result.response;
-    const text = response.text();
+VARIATION RULE:
+- Avoid repeating sentence structures or phrasing used in previous answers
+- Rephrase ideas differently when answering similar questions
 
-    res.json({ reply: text });
+PREVIOUS ANSWERS (DO NOT REPEAT PHRASING):
+${recentReplies.join('\n---\n')}
+
+DATA (USE ONLY THIS INFORMATION):
+
+RESUME:
+${JSON.stringify(resume, null, 2)}
+
+PROJECTS:
+${JSON.stringify(projects, null, 2)}
+
+SKILLS:
+${JSON.stringify(skills, null, 2)}
+
+If information is not available, respond with:
+"This information is not specified in the resume."
+`;
+
+    /* --------------------------------------------------
+       GEMINI CALL
+    -------------------------------------------------- */
+    const response = await fetch(
+      `https://generativelanguage.googleapis.com/v1/models/gemini-2.5-flash:generateContent?key=${apiKey}`,
+      {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          contents: [
+            {
+              role: 'user',
+              parts: [{ text: `${context}\n\nUSER QUESTION:\n${message}` }]
+            }
+          ]
+        })
+      }
+    );
+
+    const data = await response.json();
+
+    /* --------------------------------------------------
+       RATE LIMIT HANDLING
+    -------------------------------------------------- */
+    if (!response.ok && data?.error?.code === 429) {
+      let waitSeconds = 60;
+      const match = data?.error?.message?.match(/retry in ([0-9.]+)s/i);
+      if (match && match[1]) {
+        waitSeconds = Math.ceil(Number(match[1]));
+      }
+
+      geminiCooldownUntil = Date.now() + waitSeconds * 1000;
+
+      return res.json({
+        reply: `I’m currently receiving many requests. Please wait ${waitSeconds} seconds and try again.`,
+        retryAfter: waitSeconds
+      });
+    }
+
+    if (!response.ok) {
+      console.error('Gemini API Error:', data);
+      return res.status(500).json({ message: 'Gemini API failed' });
+    }
+
+    /* --------------------------------------------------
+       CLEAN + STORE REPLY
+    -------------------------------------------------- */
+    let reply =
+      data.candidates?.[0]?.content?.parts?.[0]?.text ||
+      'This information is not specified in the resume.';
+
+    // Final safety cleanup
+    reply = reply
+      .replace(/\*\*/g, '')
+      .replace(/\*/g, '')
+      .replace(/^\s*\d+\.\s*/gm, '')
+      .trim();
+
+    rememberReply(reply);
+
+    res.json({ reply });
 
   } catch (error) {
     console.error('Chat API Error:', error);
-    res.status(500).json({ message: 'Internal Server Error', error: error.message });
+    res.status(500).json({ message: 'Internal Server Error' });
   }
 });
 

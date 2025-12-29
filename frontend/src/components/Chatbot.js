@@ -6,23 +6,38 @@ import '../styles/Chatbot.css';
 const Chatbot = () => {
     const [isOpen, setIsOpen] = useState(false);
     const [messages, setMessages] = useState([
-        { id: 1, text: "Hi! I'm Divyansh's AI assistant. Ask me anything about his projects, skills, or experience!", sender: 'bot' }
+        {
+            id: 1,
+            text: "Hi! I'm Divyansh's AI assistant. Ask me anything about his projects, skills, or experience!",
+            sender: 'bot'
+        }
     ]);
     const [input, setInput] = useState('');
     const [isLoading, setIsLoading] = useState(false);
+    const [cooldown, setCooldown] = useState(0);
     const messagesEndRef = useRef(null);
 
     const scrollToBottom = () => {
-        messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+        messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
     };
 
+    useEffect(scrollToBottom, [messages, isOpen]);
+
+    /* ⏱ COUNTDOWN TIMER */
     useEffect(() => {
-        scrollToBottom();
-    }, [messages, isOpen]);
+        if (cooldown <= 0) return;
+        const timer = setInterval(() => {
+            setCooldown(prev => prev - 1);
+        }, 1000);
+        return () => clearInterval(timer);
+    }, [cooldown]);
 
     const handleSubmit = async (e) => {
         e.preventDefault();
+
+        // 🔒 FRONTEND LOCK
         if (!input.trim()) return;
+        if (isLoading || cooldown > 0) return;
 
         const userMessage = { id: Date.now(), text: input, sender: 'user' };
         setMessages(prev => [...prev, userMessage]);
@@ -38,13 +53,28 @@ const Chatbot = () => {
 
             const data = await response.json();
 
-            if (response.ok) {
-                setMessages(prev => [...prev, { id: Date.now() + 1, text: data.reply, sender: 'bot' }]);
+            if (data.retryAfter) {
+                setCooldown(data.retryAfter);
+                setMessages(prev => [
+                    ...prev,
+                    { id: Date.now() + 1, text: data.reply, sender: 'bot' }
+                ]);
+            } else if (response.ok && data.reply) {
+                setMessages(prev => [
+                    ...prev,
+                    { id: Date.now() + 1, text: data.reply, sender: 'bot' }
+                ]);
             } else {
-                setMessages(prev => [...prev, { id: Date.now() + 1, text: "Sorry, I'm having trouble connecting right now. Please try again later.", sender: 'bot' }]);
+                setMessages(prev => [
+                    ...prev,
+                    { id: Date.now() + 1, text: "Something went wrong.", sender: 'bot' }
+                ]);
             }
-        } catch (error) {
-            setMessages(prev => [...prev, { id: Date.now() + 1, text: "Network error. Please check your connection.", sender: 'bot' }]);
+        } catch {
+            setMessages(prev => [
+                ...prev,
+                { id: Date.now() + 1, text: "Network error. Please try again.", sender: 'bot' }
+            ]);
         } finally {
             setIsLoading(false);
         }
@@ -54,12 +84,7 @@ const Chatbot = () => {
         <div className="chatbot-container">
             <AnimatePresence>
                 {isOpen && (
-                    <motion.div
-                        initial={{ opacity: 0, scale: 0.8, y: 20 }}
-                        animate={{ opacity: 1, scale: 1, y: 0 }}
-                        exit={{ opacity: 0, scale: 0.8, y: 20 }}
-                        className="chatbot-window"
-                    >
+                    <motion.div className="chatbot-window">
                         <div className="chatbot-header">
                             <h3>AI Assistant <span>Beta</span></h3>
                             <button onClick={() => setIsOpen(false)} className="close-btn">
@@ -68,32 +93,32 @@ const Chatbot = () => {
                         </div>
 
                         <div className="chatbot-messages">
-                            {messages.map((msg) => (
+                            {messages.map(msg => (
                                 <div key={msg.id} className={`message ${msg.sender}`}>
                                     {msg.text}
                                 </div>
                             ))}
-                            {isLoading && (
+
+                            {cooldown > 0 && (
                                 <div className="message bot">
-                                    <div className="typing-indicator">
-                                        <span></span>
-                                        <span></span>
-                                        <span></span>
-                                    </div>
+                                    Please wait {cooldown} seconds before sending another message.
                                 </div>
                             )}
+
                             <div ref={messagesEndRef} />
                         </div>
 
                         <form onSubmit={handleSubmit} className="chatbot-input">
                             <input
-                                type="text"
                                 value={input}
-                                onChange={(e) => setInput(e.target.value)}
+                                onChange={e => setInput(e.target.value)}
+                                disabled={isLoading || cooldown > 0}
                                 placeholder="Ask about Divyansh..."
-                                disabled={isLoading}
                             />
-                            <button type="submit" className="send-btn" disabled={isLoading || !input.trim()}>
+                            <button
+                                type="submit"
+                                disabled={isLoading || cooldown > 0 || !input.trim()}
+                            >
                                 <FaPaperPlane />
                             </button>
                         </form>
@@ -102,8 +127,6 @@ const Chatbot = () => {
             </AnimatePresence>
 
             <motion.button
-                whileHover={{ scale: 1.1 }}
-                whileTap={{ scale: 0.9 }}
                 onClick={() => setIsOpen(!isOpen)}
                 className="chatbot-toggle"
             >
