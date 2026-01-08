@@ -1,6 +1,7 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { FaRobot, FaPaperPlane, FaTimes } from 'react-icons/fa';
+import apiClient from '../services/api';
 import '../styles/Chatbot.css';
 
 const Chatbot = () => {
@@ -45,13 +46,7 @@ const Chatbot = () => {
         setIsLoading(true);
 
         try {
-            const response = await fetch('/api/chat', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ message: userMessage.text })
-            });
-
-            const data = await response.json();
+            const { data } = await apiClient.post('/chat', { message: userMessage.text });
 
             if (data.retryAfter) {
                 setCooldown(data.retryAfter);
@@ -59,7 +54,7 @@ const Chatbot = () => {
                     ...prev,
                     { id: Date.now() + 1, text: data.reply, sender: 'bot' }
                 ]);
-            } else if (response.ok && data.reply) {
+            } else if (data.reply) {
                 setMessages(prev => [
                     ...prev,
                     { id: Date.now() + 1, text: data.reply, sender: 'bot' }
