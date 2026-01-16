@@ -2,8 +2,6 @@
 
 A modern, full-stack portfolio application built to showcase my work as a product-focused developer. The site features smooth animations, an AI-powered chat assistant, a contact form with email notifications, and an admin dashboard for content management.
 
-**Live Demo:** [Coming Soon](#)
-
 ---
 
 ## What This Project Demonstrates
@@ -25,7 +23,7 @@ A modern, full-stack portfolio application built to showcase my work as a produc
 - **Projects** – Filterable project gallery with live/GitHub links
 - **Skills** – Visual skill proficiency display organized by category
 - **Resume** – Structured resume view with education, experience, and certifications
-- **Contact** – Form submissions stored in MongoDB with optional email notifications via Resend
+- **Contact** – Form submissions stored in MongoDB with email notifications via Resend
 
 ### AI Chat Assistant
 A floating chatbot widget that answers questions about my background, projects, and skills. Powered by Google Gemini API with built-in rate limiting to manage API usage.
@@ -165,7 +163,6 @@ Building this portfolio from scratch reinforced several core skills:
 ## Future Improvements
 
 - Add unit and integration tests
-- Implement image upload for projects
 - Add blog section with markdown support
 - Set up CI/CD pipeline for automated deployments
 
@@ -177,7 +174,7 @@ Feel free to reach out if you have questions or want to discuss opportunities.
 
 - **Email:** divyanshchoudhary2839@gmail.com
 - **GitHub:** [White-Devil2839](https://github.com/White-Devil2839)
-- **LinkedIn:** [divyanshchoudhary](https://linkedin.com/in/divyanshchoudhary)
+
 
 ---
 
